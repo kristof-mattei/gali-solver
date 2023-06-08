@@ -18,10 +18,10 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
-  BUILD_DOCKER_CONTAINER: true
+  BUILD_DOCKER_CONTAINER: false
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  APPLICATION_NAME: rust-end-to-end-application
+  APPLICATION_NAME: gali-solver
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
   # just a name, but storing it separately as we're nice people

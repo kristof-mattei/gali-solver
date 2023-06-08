@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'rust-end-to-end-application'",
+            "name": "Debug executable 'gali-solver'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=rust-end-to-end-application",
-                    "--package=rust-end-to-end-application"
+                    "--bin=gali-solver",
+                    "--package=gali-solver"
                 ],
                 "filter": {
-                    "name": "rust-end-to-end-application",
+                    "name": "gali-solver",
                     "kind": "bin"
                 }
             },
@@ -23,22 +23,22 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
-                "RUST_LOG": "rust_end_to_end_application=trace"
+                "RUST_LOG": "gali_solver=trace"
             }
         },
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'rust-end-to-end-application'",
+            "name": "Debug unit tests in executable 'gali-solver'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=rust-end-to-end-application",
-                    "--package=rust-end-to-end-application"
+                    "--bin=gali-solver",
+                    "--package=gali-solver"
                 ],
                 "filter": {
-                    "name": "rust-end-to-end-application",
+                    "name": "gali-solver",
                     "kind": "bin"
                 }
             },
@@ -46,7 +46,7 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
-                "RUST_LOG": "rust_end_to_end_application=trace"
+                "RUST_LOG": "gali_solver=trace"
             }
         }
     ]
