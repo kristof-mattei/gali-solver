@@ -9,11 +9,7 @@
             "request": "launch",
             "name": "Debug executable 'gali-solver'",
             "cargo": {
-                "args": [
-                    "build",
-                    "--bin=gali-solver",
-                    "--package=gali-solver"
-                ],
+                "args": ["build", "--bin=gali-solver", "--package=gali-solver"],
                 "filter": {
                     "name": "gali-solver",
                     "kind": "bin"
