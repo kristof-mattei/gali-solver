@@ -5,102 +5,185 @@
 #![forbid(non_ascii_idents)]
 #![allow(clippy::uninlined_format_args)]
 
-// use std::path::PathBuf;
+use std::env::ArgsOs;
 
-// use env_logger::Env;
-// use futures::{stream::FuturesUnordered, StreamExt};
-// use log::info;
+use clap::{command, value_parser, Arg};
 
-// use structopt::StructOpt;
-
-// #[derive(Debug, StructOpt)]
-// #[structopt(
-//     // name, // from Cargo.toml,
-//     about, // needed otherwise it doesn't show description from Cargo.toml,
-//     author // needed otherwise it doesn't show author from Cargo.toml
-// )]
-// struct Opt {
-//     #[structopt(
-//         // verbatim_doc_comment,
-//         help = "Some help",
-//         parse(from_os_str)
-//     )]
-//     some_value: PathBuf,
-// }
-
-fn foo() -> &'static str {
-    "Foo"
+#[derive(Clone)]
+enum Operation {
+    Divide,
+    Multiply,
+    Add,
+    Subtract,
 }
 
-fn bar() -> &'static str {
-    "Bar"
+impl std::fmt::Debug for Operation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Divide => write!(f, "/"),
+            Self::Multiply => write!(f, "*"),
+            Self::Add => write!(f, "+"),
+            Self::Subtract => write!(f, "-"),
+        }
+    }
 }
 
-fn quz() -> &'static str {
-    "Quz"
+#[derive(Clone)]
+struct Step {
+    op1: u32,
+    op2: u32,
+    operation: Operation,
 }
 
-// async fn something_to_await(_: PathBuf) {
-//     println!("{}", foo());
-//     println!("{}", bar());
-//     todo!("TODO");
-// }
-
-// async fn run_app() {
-//     env_logger::Builder::from_env(Env::default().default_filter_or("INFO")).init();
-
-//     let Opt { some_value } = Opt::from_args();
-
-//     let mut tasks = FuturesUnordered::new();
-
-//     tasks.push(Box::pin(something_to_await(some_value)));
-
-//     loop {
-//         match tasks.next().await {
-//             None => {
-//                 info!("Done!");
-//                 return;
-//             }
-//             _ => {
-//                 info!("Waiting...")
-//             }
-//         }
-//     }
-// }
-
-// #[tokio::main]
-// async fn main() {
-//     run_app().await;
-// }
-
-fn main() {
-    println!("{}", foo());
-    println!("{}", bar());
-    println!("{}", quz());
-    todo!("TODO");
+impl std::fmt::Debug for Step {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {:?} {}", self.op1, self.operation, self.op2)
+    }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::{bar, foo, quz};
+fn parse_cli_from(args: ArgsOs) -> Result<(u32, Vec<u32>), color_eyre::Report> {
+    let expected_result = "expected_result";
+    let board_value = "board_value";
 
-    #[test]
-    fn assert_foo() {
-        assert_eq!(foo(), "Foo");
+    let x = command!()
+        .arg(
+            Arg::new(expected_result)
+                .index(1)
+                .value_parser(value_parser!(u32)),
+        )
+        .arg(
+            Arg::new(board_value)
+                .index(2)
+                .num_args(6)
+                .trailing_var_arg(true)
+                .value_parser(value_parser!(u32)),
+        );
+
+    let matches = x.try_get_matches_from(args)?;
+
+    let expected_result = *matches.get_one::<u32>(expected_result).unwrap();
+
+    let board = matches
+        .get_many(board_value)
+        .unwrap()
+        .copied()
+        .collect::<Vec<u32>>();
+
+    Ok((expected_result, board))
+}
+
+fn parse_cli() -> Result<(u32, Vec<u32>), color_eyre::Report> {
+    parse_cli_from(std::env::args_os())
+}
+
+fn main() -> Result<(), color_eyre::Report> {
+    let (expected, v) = parse_cli()?;
+
+    let permutations = build_permutations_r(&v)
+        .into_iter()
+        .map(|p| (p, vec![]))
+        .collect::<Vec<(Vec<u32>, Vec<Step>)>>();
+
+    let solutions = solve(permutations, expected);
+
+    let ff = solutions
+        .into_iter()
+        .min_by(|x, y| usize::cmp(&x.len(), &y.len()));
+
+    println!("{:?}", ff);
+
+    Ok(())
+}
+
+fn solve(mut permutations: Vec<(Vec<u32>, Vec<Step>)>, expected: u32) -> Vec<Vec<Step>> {
+    let mut solutions = vec![];
+    while let Some((mut permutation, path)) = permutations.pop() {
+        let last = match permutation.pop() {
+            Some(l) => {
+                if l == expected {
+                    solutions.push(path);
+                    continue;
+                }
+                l
+            },
+            None => {
+                continue;
+            },
+        };
+
+        let Some(second_last ) = permutation.pop() else {
+            continue;
+        };
+
+        if let Some(x) = try_solve(last, second_last, Operation::Divide, &permutation, &path) {
+            permutations.push(x);
+        }
+        if let Some(x) = try_solve(last, second_last, Operation::Multiply, &permutation, &path) {
+            permutations.push(x);
+        }
+        if let Some(x) = try_solve(last, second_last, Operation::Add, &permutation, &path) {
+            permutations.push(x);
+        }
+        if let Some(x) = try_solve(last, second_last, Operation::Subtract, &permutation, &path) {
+            permutations.push(x);
+        }
     }
 
-    #[test]
-    fn assert_bar() {
-        assert_eq!(bar(), "Bar");
+    solutions
+}
+
+fn try_solve(
+    op1: u32,
+    op2: u32,
+    operation: Operation,
+    old_permutation: &[u32],
+    old_path: &[Step],
+) -> Option<(Vec<u32>, Vec<Step>)> {
+    let result = match operation {
+        Operation::Divide => match op1.checked_rem(op2) {
+            Some(_) => None,
+            None => Some(op1 / op2),
+        },
+        Operation::Multiply => Some(op1 * op2),
+        Operation::Add => Some(op1 + op2),
+        Operation::Subtract => op1.checked_sub(op2),
+    };
+
+    if let Some(r) = result {
+        let mut new_permutation = old_permutation.to_vec();
+        new_permutation.push(r);
+
+        let mut path = old_path.to_vec();
+        path.push(Step {
+            op1,
+            op2,
+            operation,
+        });
+
+        Some((new_permutation, path))
+    } else {
+        None
+    }
+}
+
+fn build_permutations_r(slice: &[u32]) -> Vec<Vec<u32>> {
+    if slice.is_empty() {
+        return vec![vec![]];
     }
 
-    #[test]
-    fn assert_quz() {
-        assert_eq!(quz(), "Quz");
+    let mut total = vec![];
+
+    for index in 0..slice.len() {
+        let mut c = slice.to_vec();
+
+        let at = c.remove(index);
+
+        for mut p in build_permutations_r(&c) {
+            p.insert(0, at);
+
+            total.push(p);
+        }
     }
 
-    #[test]
-    fn assert_combined() {
-        assert_eq!(format!("{}-{}-{}", foo(), bar(), quz()), "Foo-Bar-Quz");
-    }
+    total
 }
