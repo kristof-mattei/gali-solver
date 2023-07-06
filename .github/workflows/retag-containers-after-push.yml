@@ -1,7 +1,7 @@
 name: Retag containers after new push / PR
 
 env:
-  BUILD_DOCKER_CONTAINER: true
+  BUILD_DOCKER_CONTAINER: false
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
