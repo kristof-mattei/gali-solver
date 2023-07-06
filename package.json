@@ -8,8 +8,8 @@
     "release": "semantic-release"
   },
   "engines": {
-    "node": ">=v18.16.0",
-    "npm": ">=9.7.1"
+    "node": ">=v18.16.1",
+    "npm": ">=9.8.0"
   },
   "repository": {
     "type": "git",
@@ -26,11 +26,11 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/github": "^8.1.0",
-    "@semantic-release/release-notes-generator": "^11.0.3",
+    "@semantic-release/release-notes-generator": "^11.0.4",
     "conventional-changelog-conventionalcommits": "^5.0.0",
     "prettier": "^2.8.8",
-    "semantic-release": "^21.0.3",
-    "semver": "^7.5.1",
+    "semantic-release": "^21.0.7",
+    "semver": "^7.5.3",
     "serialize-error": "^11.0.0"
   },
   "publishConfig": {
