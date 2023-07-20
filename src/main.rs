@@ -77,6 +77,8 @@ fn parse_cli() -> Result<(u32, Vec<u32>), color_eyre::Report> {
 }
 
 fn main() -> Result<(), color_eyre::Report> {
+    color_eyre::install()?;
+
     let (expected, v) = parse_cli()?;
 
     let permutations = build_permutations_r(&v)
