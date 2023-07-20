@@ -18,8 +18,8 @@
             "args": [],
             "cwd": "${workspaceFolder}",
             "env": {
-                "RUST_BACKTRACE": "1",
-                "RUST_LOG": "gali_solver=trace"
+                "RUST_BACKTRACE": "full",
+                "RUST_LOG": "trace,gali_solver=trace"
             }
         },
         {
@@ -41,8 +41,8 @@
             "args": [],
             "cwd": "${workspaceFolder}",
             "env": {
-                "RUST_BACKTRACE": "1",
-                "RUST_LOG": "gali_solver=trace"
+                "RUST_BACKTRACE": "full",
+                "RUST_LOG": "trace,gali_solver=trace"
             }
         }
     ]
