@@ -113,7 +113,7 @@ fn solve(mut permutations: Vec<(Vec<u32>, Vec<Step>)>, expected: u32) -> Vec<Vec
             },
         };
 
-        let Some(second_last ) = permutation.pop() else {
+        let Some(second_last) = permutation.pop() else {
             continue;
         };
 
